@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <HelloWorld msg="To-Dos List"/>
+    <HelloWorld msg="Yubi TodoList"/>
   </div>
 </template>
 
