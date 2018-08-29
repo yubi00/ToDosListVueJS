@@ -7,11 +7,12 @@
 <script>
 import HelloWorld from './components/HelloWorld.vue'
 import UpdateTodo from './components/UpdateTodo.vue'
+import FilterTodo from './components/FilterTodo.vue'
 
 export default {
   name: 'app',
   components: {
-    HelloWorld,UpdateTodo
+    HelloWorld,UpdateTodo,FilterTodo
   }
 }
 </script>

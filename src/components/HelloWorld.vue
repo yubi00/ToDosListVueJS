@@ -6,18 +6,28 @@
       <input type = "button" id="btn" value="Add" style="height: 45px; width: 50px"  v-on:click="addItem()">
       <input type = "button" id="btn1" value="Reset" style="height: 45px; width: 55px; margin-left: 10px"  v-on:click="clearAll()">
     </div>
-    <UpdateTodo :todos = "todos" />
+    <UpdateTodo :todos = "todos"/>
    <div id="selectall" style="float:left; margin-left: 40px;">
         <input type="checkbox" v-model="checked" id="selectall" v-on:change="CheckUncheck()">
         <label>Select All</label>
     </div> 
     <div style="margin-top: 40px;">
-      <ul v-for="(todo, index) in todos" v-bind:key="index">
+      <ul v-if="flag === 0" v-for="(todo, index) in todos" v-bind:key="index">
         <li  :class="{completed: todo.completed}" style="background-color: lightblue; width: 800px; height: 50px;" >
             <input type="checkbox" id="checkbox" style="float: left;" v-model="todo.completed"  @click="isCompleted(index)"   >
           <strong >{{ todo.title }}</strong>
           <span><input type="button" value="X"  id="deleteitem" v-on:click="deleteItem(index)"></span>
-          <span><button><img src="http://www.iconarchive.com/download/i80229/custom-icon-design/flatastic-1/edit.ico" @click = "callUpdate(index)" width="13" height="13"/></button></span> 
+          <span><button @click = "callUpdate(index)"><img src="http://www.iconarchive.com/download/i80229/custom-icon-design/flatastic-1/edit.ico"  width="13" height="13"/></button></span> 
+        </li>  
+     </ul>
+     <ul v-if="flag === 1" v-for="(todo, i) in completedtodos" v-bind:key="i">
+        <li  :class="{completed: todo.completed}" style="background-color: lightblue; width: 800px; height: 50px;" >
+          <strong >{{ todo.title }}</strong>         
+        </li>  
+     </ul>
+     <ul v-if="flag === 2" v-for="(todo, ind) in incompletedtodos" v-bind:key="ind">
+        <li  :class="{completed: todo.completed}" style="background-color: lightblue; width: 800px; height: 50px;" >
+          <strong >{{ todo.title }}</strong>
         </li>  
      </ul>
 
@@ -26,17 +36,20 @@
     <div style="float:left; margin-left: 40px;">
         Task Completed: {{ taskcompleted }}
     </div>
+    
+    <FilterTodo :todos = "todos" />
   </div>
 </template>
 
 <script>
 import UpdateTodo from './UpdateTodo.vue'
 import {EventBus} from '../main.js'
+import FilterTodo from './FilterTodo.vue'
 
 export default {
   name: 'HelloWorld',
   components: {
-    UpdateTodo
+    UpdateTodo,FilterTodo
   },
   props: {
     msg: String
@@ -45,6 +58,38 @@ export default {
   ,
   created(){
     EventBus.$on('updatetodo', this.editTodo );
+    EventBus.$on('showalltodos', (data) => {
+      this.flag = 0;
+      this.todos = data;
+
+    })
+    EventBus.$on('showcompletedtodos', (data) => {
+      this.flag = 1;
+      this.completedtodos = data;
+      console.log("parent completed todos: "+JSON.stringify(this.completedtodos));
+      console.log("length " +this.completedtodos.length);
+    });
+
+    EventBus.$on('showincompletedtodos', (data) => {
+      this.flag = 2; 
+      this.incompletedtodos = data;
+      console.log("parent incompleted todos: "+JSON.stringify(this.incompletedtodos));
+    });
+
+    EventBus.$on('clearcompletedtodos', (data) => {
+      console.log("Deleted completed todos: "+JSON.stringify(data));
+      var x = data.length; 
+      var ind = 0; 
+      var i = 0;
+      for(i=0; i<x; i++) {
+        console.log("todo: "+data[i].title);
+        console.log("testing all todos: "+JSON.stringify(this.todos));
+        ind = this.todos.indexOf(data[i]);
+        console.log("the index : "+ind);
+        this.todos.splice(ind, 1);
+        localStorage.setItem("items", JSON.stringify(this.todos));
+      }
+    })
   },
   data() {
     return {
@@ -56,7 +101,10 @@ export default {
       taskcompleted: 0,
       checked: false,
       itemindex: 0, 
-      todo: ''
+      todo: '',
+      completedtodos: [],
+      incompletedtodos: [],
+      flag: 0
 
     }
   },
@@ -193,5 +241,7 @@ a {
  {
    text-decoration: line-through;
  }
+
+
 
 </style>
