@@ -88,6 +88,7 @@ export default {
         console.log("the index : "+ind);
         this.todos.splice(ind, 1);
         localStorage.setItem("items", JSON.stringify(this.todos));
+        this.taskcompleted = 0;
       }
     })
   },
